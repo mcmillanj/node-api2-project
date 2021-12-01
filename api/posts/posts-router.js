@@ -60,16 +60,16 @@ router.post('/', (req, res) => {
 
 
   router.put('/:id', (req, res) => {
-const {title,contents}= req.body
+const {title,contents}  = req.body
     if(!title || !contents) {
-        res.status(400).json({message:'please provide title and contents for the post '
+        res.status(400).json({message:'Please provide title and contents for the post '
     })
-    }else {
+    } else {
         Post.findById(req.params.id)
         .then( ans => {
         if(!ans){     
       res.status(404).json({
-          message:'the post with the specified ID does not exit',
+          message:"The post with the specified ID does not exist"
         })
         } else {        
                     
@@ -88,7 +88,7 @@ const {title,contents}= req.body
        })   
         .catch(err => {       
         res.status(500).json({
-            message: "The post information could not be retrieved",
+            message: "The post information could not be modified",
             err:err.message
              })
     
@@ -117,21 +117,21 @@ router.delete('/:id',async (req, res) => {
 
 
 
-router.get("/:id/comments", (req, res) => {
-    const  id  = req.params.id
-    Post.findCommentById(id)
-    .then(comment => {
-        if(!comment){
-            res.status(404).json('does not exist')
-        } else {
-            res.json(comment)
+router.get('/:id/comments', async (req, res) => {
+    try {
+    const  post = await Post.findById(req.params.id)
+    if (!post) {
+        res.status(404).json({message:'the post with the specified ID does not exist',
+    }) 
+    } else {
+         const comments = await Post.findPostComments(req.params.id)
+         res.json(comments)
         }
-    })
-    .catch(error => {
-        res.status(500).json({ message:"The post with the specified ID does not exist",
-            error: error.message })
-    })
-        
+    } catch(err) {
+        res.status(500).json({ message:"The comments information could not be retrieved",
+            error: err.message })
+    
+}   
 
 })
 
